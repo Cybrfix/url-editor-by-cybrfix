@@ -33,4 +33,4 @@ A powerful, lightweight, and completely client-side web utility built for batch 
 
 ## 🌐 Live Demo
 You can access and use the live tool directly via GitHub Pages:  
-👉 [ https://cybrfix.github.io/url-editor-by-cybrfix/](#) 
+👉 [ https://cybrfix.github.io/url-editor-by-cybrfix/ ](#) 
