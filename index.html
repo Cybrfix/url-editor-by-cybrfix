@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Editor & Domain Extractor Tool | By Cybrfix</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 8px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 8px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col items-center justify-between py-10 px-4 sm:px-6 lg:px-8">
+
+    <!-- Header Section -->
+    <header class="max-w-6xl w-full text-center mb-8">
+        <div class="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-600 mb-3">
+            <i class="ph ph-code"></i> Developed by Cybrfix
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight flex items-center justify-center gap-3">
+            <i class="ph ph-link text-indigo-600"></i>
+            URL Editor & Domain Extractor
+        </h1>
+        <p class="mt-2 text-slate-600">
+            Batch process URLs with speed and precision.
+        </p>
+    </header>
+
+    <!-- Main Tool Container -->
+    <main class="max-w-6xl w-full bg-white shadow-xl shadow-slate-200/60 rounded-2xl p-6 sm:p-8 border border-slate-100 flex-grow">
+        
+        <!-- Mode Selection Section -->
+        <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-5 mb-6">
+            <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">
+                <i class="ph ph-sliders text-indigo-600 me-1"></i> Select Operation Mode:
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-indigo-400 transition-colors shadow-sm">
+                    <input type="radio" name="toolMode" value="trimEqual" checked class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
+                    <div>
+                        <span class="block text-sm font-semibold text-slate-800">1. Remove text after last '='</span>
+                        <span class="block text-xs text-slate-500 mt-0.5">Trims the value following the final '=' in every link line.</span>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-indigo-400 transition-colors shadow-sm">
+                    <input type="radio" name="toolMode" value="extractDomain" class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
+                    <div>
+                        <span class="block text-sm font-semibold text-slate-800">2. Extract Main Domain / Base URL Only</span>
+                        <span class="block text-xs text-slate-500 mt-0.5">Strips paths & parameters to keep only main host URL.</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Textareas Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            
+            <!-- Input Area -->
+            <div class="flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="inputLinks" class="block text-sm font-bold text-slate-700">
+                        Input URLs
+                    </label>
+                    <button onclick="clearAll()" class="text-xs font-semibold text-slate-500 hover:text-red-500 flex items-center gap-1 transition-colors">
+                        <i class="ph ph-trash"></i> Clear All
+                    </button>
+                </div>
+                <textarea id="inputLinks" spellcheck="false"
+                    class="h-[320px] w-full p-4 text-sm font-mono border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none transition-all bg-slate-50/50 placeholder-slate-400"
+                    placeholder="Paste your URLs here (one per line)...&#10;&#10;Examples:&#10;https://example.com.br/home.php=news.php=page#1&#10;https://example.com.ar/contact=serial"></textarea>
+            </div>
+
+            <!-- Output Area -->
+            <div class="flex flex-col relative">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="outputLinks" class="block text-sm font-bold text-slate-700">
+                        Processed Results
+                    </label>
+                    <button id="copyBtn" onclick="copyOutput()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors px-3 py-1 bg-indigo-50 hover:bg-indigo-100 rounded-md">
+                        <i class="ph ph-copy"></i> Copy Results
+                    </button>
+                </div>
+                <textarea id="outputLinks" readonly spellcheck="false"
+                    class="h-[320px] w-full p-4 text-sm font-mono border-2 border-slate-200 rounded-xl bg-slate-100/70 text-slate-700 outline-none resize-none focus:border-slate-300"
+                    placeholder="Output links will appear here..."></textarea>
+                
+                <!-- Toast Alert -->
+                <div id="copyToast" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-medium flex items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-300">
+                    <i class="ph-bold ph-check text-green-400 text-sm"></i> Copied to Clipboard!
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Control Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-6">
+            <div class="text-xs text-slate-500 flex items-center gap-1.5">
+                <i class="ph-fill ph-info text-indigo-500 text-base"></i>
+                Processing is executed locally right in your web browser.
+            </div>
+            <button onclick="processLinks()" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md shadow-indigo-200 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+                <i class="ph ph-play-circle text-lg"></i>
+                Process Links
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer Branding -->
+    <footer class="mt-8 text-center text-xs text-slate-400">
+        <p>&copy; URL Editor & Domain Extractor Tool &bull; Designed & Developed by <strong class="text-slate-600">Cybrfix</strong></p>
+    </footer>
+
+    <script>
+        /**
+         * Main function to process URLs based on selected mode.
+         */
+        function processLinks() {
+            const inputTextArea = document.getElementById('inputLinks');
+            const outputTextArea = document.getElementById('outputLinks');
+            const rawText = inputTextArea.value;
+            
+            if (!rawText.trim()) {
+                outputTextArea.value = "";
+                return;
+            }
+
+            const mode = document.querySelector('input[name="toolMode"]:checked').value;
+            const lines = rawText.split('\n');
+
+            const processedLines = lines.map(line => {
+                let trimmed = line.trim();
+                if (!trimmed) return "";
+
+                if (mode === "trimEqual") {
+                    // Mode 1: Remove everything after the last '='
+                    const lastEqualsIndex = trimmed.lastIndexOf('=');
+                    if (lastEqualsIndex !== -1) {
+                        return trimmed.substring(0, lastEqualsIndex + 1);
+                    }
+                    return trimmed;
+                } 
+                else if (mode === "extractDomain") {
+                    // Mode 2: Extract Main Domain / Base URL
+                    try {
+                        let urlToParse = trimmed;
+                        // Add protocol if missing for proper parsing
+                        if (!/^https?:\/\//i.test(urlToParse)) {
+                            urlToParse = 'https://' + urlToParse;
+                        }
+                        const parsedUrl = new URL(urlToParse);
+                        return parsedUrl.origin;
+                    } catch (e) {
+                        // Fallback using Regex matching domain origin
+                        const match = trimmed.match(/^(https?:\/\/[^\/]+)/i);
+                        return match ? match[1] : trimmed;
+                    }
+                }
+            });
+
+            outputTextArea.value = processedLines.join('\n');
+        }
+
+        /**
+         * Copies output text to clipboard with notification.
+         */
+        function copyOutput() {
+            const outputTextArea = document.getElementById('outputLinks');
+            if (!outputTextArea.value.trim()) return;
+
+            outputTextArea.select();
+            document.execCommand('copy');
+
+            const toast = document.getElementById('copyToast');
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2000);
+            
+            window.getSelection().removeAllRanges();
+        }
+
+        /**
+         * Clears input and output fields.
+         */
+        function clearAll() {
+            document.getElementById('inputLinks').value = '';
+            document.getElementById('outputLinks').value = '';
+        }
+    </script>
+</body>
+</html>
